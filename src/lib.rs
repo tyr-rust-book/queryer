@@ -46,7 +46,7 @@ impl DataSet {
 
 /// 从 from 中获取数据，从 where 中过滤，最后选取需要返回的列
 pub async fn query<T: AsRef<str>>(sql: T) -> Result<DataSet> {
-    let ast = Parser::parse_sql(&TyrDialect::default(), sql.as_ref())?;
+    let ast = Parser::parse_sql(&TyrDialect, sql.as_ref())?;
 
     if ast.len() != 1 {
         return Err(anyhow!("Only support single sql at the moment"));

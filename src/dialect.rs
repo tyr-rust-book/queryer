@@ -6,14 +6,13 @@ pub struct TyrDialect;
 // 创建自己的 sql 方言。TyrDialect 支持 identifier 可以是简单的 url
 impl Dialect for TyrDialect {
     fn is_identifier_start(&self, ch: char) -> bool {
-        ('a'..='z').contains(&ch) || ('A'..='Z').contains(&ch) || ch == '_'
+        ch.is_ascii_alphabetic() || ch == '_'
     }
 
     // identifier 可以有 ':', '/', '?', '&', '='
     fn is_identifier_part(&self, ch: char) -> bool {
-        ('a'..='z').contains(&ch)
-            || ('A'..='Z').contains(&ch)
-            || ('0'..='9').contains(&ch)
+        ch.is_ascii_alphanumeric()
+            || ch.is_ascii_digit()
             || [':', '/', '?', '&', '=', '-', '_', '.'].contains(&ch)
     }
 }
@@ -38,6 +37,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        assert!(Parser::parse_sql(&TyrDialect::default(), &example_sql()).is_ok());
+        assert!(Parser::parse_sql(&TyrDialect, &example_sql()).is_ok());
     }
 }

@@ -138,7 +138,7 @@ impl<'a> TryFrom<Projection<'a>> for Expr {
 
     fn try_from(p: Projection<'a>) -> Result<Self, Self::Error> {
         match p.0 {
-            SelectItem::UnnamedExpr(SqlExpr::Identifier(id)) => Ok(col(&id.to_string())),
+            SelectItem::UnnamedExpr(SqlExpr::Identifier(id)) => Ok(col(id.to_string())),
             SelectItem::ExprWithAlias {
                 expr: SqlExpr::Identifier(id),
                 alias,
@@ -146,7 +146,7 @@ impl<'a> TryFrom<Projection<'a>> for Expr {
                 Arc::new(Expr::Column(PlSmallStr::from(id.to_string()))),
                 PlSmallStr::from(alias.to_string()),
             )),
-            SelectItem::QualifiedWildcard(v, _) => Ok(col(&v.to_string())),
+            SelectItem::QualifiedWildcard(v, _) => Ok(col(v.to_string())),
             SelectItem::Wildcard(_) => Ok(col("*")),
             item => Err(anyhow!("projection {} not supported", item)),
         }
@@ -174,7 +174,7 @@ impl<'a> TryFrom<Source<'a>> for &'a str {
 }
 
 /// 把 SqlParser 的 order by expr 转换成 (列名, 排序方法)
-impl<'a> TryFrom<Order<'a>> for (String, bool) {
+impl TryFrom<Order<'_>> for (String, bool) {
     type Error = anyhow::Error;
 
     fn try_from(o: Order) -> Result<Self, Self::Error> {
@@ -193,7 +193,7 @@ impl<'a> TryFrom<Order<'a>> for (String, bool) {
 }
 
 /// 把 SqlParser 的 offset expr 转换成 i64
-impl<'a> From<Offset<'a>> for i64 {
+impl From<Offset<'_>> for i64 {
     fn from(offset: Offset) -> Self {
         match offset.0 {
             SqlOffset {
@@ -241,7 +241,7 @@ mod tests {
             "select a, b, c from {} where a=1 order by c desc limit 5 offset 10",
             url
         );
-        let statement = &Parser::parse_sql(&TyrDialect::default(), sql.as_ref()).unwrap()[0];
+        let statement = &Parser::parse_sql(&TyrDialect, sql.as_ref()).unwrap()[0];
         let sql: Sql = statement.try_into().unwrap();
         assert_eq!(sql.source, url);
         assert_eq!(sql.limit, Some(5));

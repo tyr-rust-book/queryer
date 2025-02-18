@@ -9,6 +9,6 @@ fn main() {
     ORDER BY a DESC, b \
     LIMIT 50 OFFSET 10";
 
-    let ast = Parser::parse_sql(&GenericDialect::default(), sql);
+    let ast = Parser::parse_sql(&GenericDialect, sql);
     println!("{:#?}", ast);
 }

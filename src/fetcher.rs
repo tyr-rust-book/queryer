@@ -17,7 +17,7 @@ pub async fn retrieve_data(source: impl AsRef<str>) -> Result<String> {
         "http" => UrlFetcher(name).fetch().await,
         // 处理 file://<filename>
         "file" => FileFetcher(name).fetch().await,
-        _ => return Err(anyhow!("We only support http/https/file at the moment")),
+        _ => Err(anyhow!("We only support http/https/file at the moment")),
     }
 }
 
@@ -25,7 +25,7 @@ struct UrlFetcher<'a>(pub(crate) &'a str);
 struct FileFetcher<'a>(pub(crate) &'a str);
 
 #[async_trait]
-impl<'a> Fetch for UrlFetcher<'a> {
+impl Fetch for UrlFetcher<'_> {
     type Error = anyhow::Error;
 
     async fn fetch(&self) -> Result<String, Self::Error> {
@@ -34,7 +34,7 @@ impl<'a> Fetch for UrlFetcher<'a> {
 }
 
 #[async_trait]
-impl<'a> Fetch for FileFetcher<'a> {
+impl Fetch for FileFetcher<'_> {
     type Error = anyhow::Error;
 
     async fn fetch(&self) -> Result<String, Self::Error> {
